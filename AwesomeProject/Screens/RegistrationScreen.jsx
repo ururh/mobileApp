@@ -15,6 +15,7 @@ import { AntDesign } from '@expo/vector-icons';
 import * as Yup from 'yup';
 
 import bgImg from '../assets/background.jpg';
+import { useNavigation } from '@react-navigation/native';
 
 const validationSchema = Yup.object().shape({
   login: Yup.string().required('Поле "Login" є обов\'язковим'),
@@ -31,6 +32,7 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function RegistrationScreen() {
+  const navigation = useNavigation();
   const [activeInputName, setActiveInputName] = useState(null);
   const [showPwd, setShowPwd] = useState(true);
   const [formData, setFormData] = useState({
@@ -59,7 +61,8 @@ export default function RegistrationScreen() {
     try {
       await validationSchema.validate(formData, { abortEarly: false });
       console.log(formData);
-      setErrors({});
+		setErrors({});
+		navigation.navigate('PostScren')
     } catch (validationErrors) {
       const newErrors = {};
       validationErrors.inner.forEach((error) => {
@@ -151,7 +154,7 @@ export default function RegistrationScreen() {
                 <Text style={styles.btnText}>Зареєструватися</Text>
               </TouchableOpacity>
               <TouchableOpacity>
-                <Text style={styles.linkText}>
+                <Text style={styles.linkText} onPress={() => navigation.navigate("Login")}>
                   Вже є акаунт? Увійти
                 </Text>
               </TouchableOpacity>

@@ -1,11 +1,24 @@
+import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+
 import * as  Font from 'expo-font';
+
 import RegistrationScreen from './Screens/RegistrationScreen';
 import LoginScreen from './Screens/LoginScreen';
+import PostsScreen from './Screens/PostsScreen';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CreatePostsScreen from './secondaryScreens/CreatePostsScreen';
+import ProfileScreen from './secondaryScreens/ProfileScreen';
+
+
+
+ const MainStack = createNativeStackNavigator();
 
 export default function App() {
+ 
    const [appIsReady, setAppIsReady] = useState(false);
   useEffect(() => {
     async function prepare() {
@@ -23,18 +36,15 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <LoginScreen />
-      <StatusBar style="auto" />
-    </View>
+      <NavigationContainer>
+        <MainStack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
+          <MainStack.Screen name="Login" component={LoginScreen} />
+        <MainStack.Screen name="Registration" component={RegistrationScreen} />
+        <MainStack.Screen name="PostScren" component={PostsScreen} />
+        <MainStack.Screen name="CreatePostsScreen" component={CreatePostsScreen} />
+        <MainStack.Screen name="ProfileScreen" component={ProfileScreen} />
+          </MainStack.Navigator>
+     </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

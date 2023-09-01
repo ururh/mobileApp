@@ -15,8 +15,11 @@ import bgImg from '../assets/background.jpg';
 
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
+import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
+	const navigation = useNavigation();
+
     const [activeInputName, setActiveInputName] = useState(null);
     const [showPwd, setShowPwd] = useState(true);
 
@@ -43,7 +46,8 @@ export default function LoginScreen() {
     const { handleChange, handleBlur, handleSubmit, values, errors, touched } = useFormik({
         initialValues: { email: '', password: '' },
         validationSchema,
-        onSubmit: (values) => {
+		onSubmit: (values) => {
+			navigation.navigate('PostScren');
             console.log(values);
         },
     });
@@ -108,7 +112,7 @@ export default function LoginScreen() {
                             <TouchableOpacity style={styles.btn} onPress={handleSubmit}>
                                 <Text style={styles.btnText}>Увійти</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.linkLogin}>
+                            <TouchableOpacity style={styles.linkLogin} onPress={() => navigation.navigate("Registration")}>
                                 <Text style={styles.linkText}>
                                     Немає акаунту? Зареєструватися
                                 </Text>
