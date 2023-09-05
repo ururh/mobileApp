@@ -12,6 +12,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CreatePostsScreen from './secondaryScreens/CreatePostsScreen';
 import ProfileScreen from './secondaryScreens/ProfileScreen';
+import MapScreen from './secondaryScreens/MapScreen';
+import CommentsScreen from './secondaryScreens/CommentsScreen';
 
 
 
@@ -37,12 +39,14 @@ export default function App() {
 
   return (
       <NavigationContainer>
-        <MainStack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
+        <MainStack.Navigator initialRouteName='PostScren' screenOptions={{ headerShown: false }}>
           <MainStack.Screen name="Login" component={LoginScreen} />
         <MainStack.Screen name="Registration" component={RegistrationScreen} />
         <MainStack.Screen name="PostScren" component={PostsScreen} />
         <MainStack.Screen name="CreatePostsScreen" component={CreatePostsScreen} />
         <MainStack.Screen name="ProfileScreen" component={ProfileScreen} />
+        <MainStack.Screen name="Map" component={MapScreen} />
+        <MainStack.Screen name="Comments" component={CommentsScreen}/>
           </MainStack.Navigator>
      </NavigationContainer>
   );
