@@ -10,12 +10,15 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     View,
+    Alert,
 } from 'react-native';
 import bgImg from '../assets/background.jpg';
 
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
 export default function LoginScreen() {
 	const navigation = useNavigation();
@@ -43,14 +46,23 @@ export default function LoginScreen() {
             .required('Це поле обов\'язкове'),
     });
 
-    const { handleChange, handleBlur, handleSubmit, values, errors, touched } = useFormik({
-        initialValues: { email: '', password: '' },
-        validationSchema,
-		onSubmit: (values) => {
-			navigation.navigate('PostScren');
-            console.log(values);
-        },
-    });
+const { handleChange, handleBlur, handleSubmit, values, errors, touched } = useFormik({
+    initialValues: { email: '', password: '' },
+    validationSchema,
+    onSubmit: async (values) => {
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth,
+          values.email,
+          values.password
+        );
+        console.log('Авторизація успішна', userCredential.user);
+        navigation.navigate('PostScren');
+      } catch (error) {
+        Alert.alert("Помилка","Незареєстрований користувач")
+      }
+    },
+  });
+
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

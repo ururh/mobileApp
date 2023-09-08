@@ -5,21 +5,39 @@ import * as Location from 'expo-location';
 import { FontAwesome, Feather, EvilIcons } from '@expo/vector-icons';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Camera } from 'expo-camera';
+import {db, auth} from '../firebase/config'
+import { collection, addDoc } from 'firebase/firestore'; 
+import { setPhotoData } from '../redux/actions';
+import { useDispatch } from 'react-redux';
+
 
 const CreatePostsScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch()
 
-    const navigateToPostScreen = () => {
-        clearData();
-    navigation.navigate('Home');
-  };
-    
 const [postPhoto, setPostPhoto] = useState(null);
 const [photoName, setPhotoName] = useState('');
 const [hasPermission, setHasPermission] = useState(null);
 const [currentCity, setCurrentCity] = useState("");
 const cameraRef = useRef(null);
 
+const navigateToPostScreen = async () => {
+  try {
+    const photoData = {
+      postPhoto: postPhoto,
+      photoName: photoName,
+      currentCity: currentCity,
+      uid: auth.currentUser.uid,
+    };
+dispatch(setPhotoData(photoData));
+    const docRef = await addDoc(collection(db, 'photo'), photoData);
+    clearData();
+    navigation.navigate('Home');
+  } catch (error) {
+    console.error('Ошибка при сохранении данных:', error);
+  }
+};
+    
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -82,9 +100,7 @@ const cameraRef = useRef(null);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <TouchableOpacity onPress={pickImage} style={{ backgroundColor: '#fff' }}>
-          <Text style={styles.imageText}>{postPhoto ? "Редагувати " : "Обрати"}</Text>
-              </TouchableOpacity>
+
         <View style={styles.container}>
           {postPhoto ? (
               <Image
@@ -111,7 +127,10 @@ const cameraRef = useRef(null);
               </TouchableOpacity>
             </Camera>
           )}
-          {/* <View style={styles.formContainer}> */}
+                  {/* <View style={styles.formContainer}> */}
+                          <TouchableOpacity onPress={pickImage} style={{ backgroundColor: '#fff', marginRight:'auto', paddingLeft:16,}}>
+          <Text style={styles.imageText}> {postPhoto ? "Редагувати фото" : "Завантажте фото"}</Text>
+              </TouchableOpacity>
             <TextInput
               style={styles.input}
               placeholder="Назва..."
@@ -120,13 +139,17 @@ const cameraRef = useRef(null);
               value={photoName}
               onChangeText={setPhotoName}
                   />
-            <TextInput
-              style={styles.input}
-              placeholder="Місцевість..."
-              type={'text'}
-              name={'photoLocation'}
-              value={currentCity}
-              onChangeText={setCurrentCity}/>
+            <View style={styles.inputContainer}>
+  <EvilIcons name="location" size={24} color="#BDBDBD" style={styles.icon} />
+  <TextInput
+    style={styles.inputLocation}
+    placeholder="Місцевість..."
+    type={'text'}
+    name={'photoLocation'}
+    value={currentCity}
+    onChangeText={setCurrentCity}
+  />
+</View> 
             <TouchableOpacity
             onPress={navigateToPostScreen}
               style={[
@@ -169,10 +192,21 @@ const cameraRef = useRef(null);
 };
 
 const styles = StyleSheet.create({
+     inputContainer: {
+    flexDirection: 'row',
+    position:'relative',
+
+  },
+  
+    icon: {
+        position: 'absolute',
+        top: 48,
+  },
   container: {
-    flex: 1,
     alignItems: 'center',
     backgroundColor: '#fff',
+    height: '100%',
+    paddingTop:32,
   },
   camera: {
     width: '92%',
@@ -194,7 +228,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 16,
     lineHeight: 19,
-    marginTop: 16,
+    marginTop: 8,
   },
     formContainer: {
     flex: 3,
@@ -212,7 +246,7 @@ const styles = StyleSheet.create({
   },
     clearButton: {
     backgroundColor: '#F6F6F6',
-    marginTop:60,
+    marginTop: 'auto',
     marginLeft: 'auto',
     marginRight: 'auto',
     alignItems: 'center',
@@ -225,7 +259,18 @@ const styles = StyleSheet.create({
     width: 340,
     height: 50,
     marginTop: 33,
-    padding: 16,
+    padding: 12,
+    fontStyle: 'normal',
+    fontWeight: '400',
+    fontSize: 16,
+    borderBottomColor: '#E8E8E8',
+    borderBottomWidth: 2,
+    },
+    inputLocation: {
+    width: 340,
+    height: 50,
+    marginTop: 33,
+    paddingLeft: 24,
     fontStyle: 'normal',
     fontWeight: '400',
     fontSize: 16,

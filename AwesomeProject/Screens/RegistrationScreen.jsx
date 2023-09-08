@@ -9,13 +9,19 @@ import {
   KeyboardAvoidingView,
   StyleSheet,
   Platform,
+  Image,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import * as Yup from 'yup';
+import * as ImagePicker from 'expo-image-picker';
 
 import bgImg from '../assets/background.jpg';
 import { useNavigation } from '@react-navigation/native';
+import { auth, db} from '../firebase/config';
+import { setDoc, doc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useDispatch } from 'react-redux';
 
 const validationSchema = Yup.object().shape({
   login: Yup.string().required('Поле "Login" є обов\'язковим'),
@@ -34,6 +40,7 @@ const validationSchema = Yup.object().shape({
 export default function RegistrationScreen() {
   const navigation = useNavigation();
   const [activeInputName, setActiveInputName] = useState(null);
+  const [avatarPhoto, setAvatarPhoto] = useState(null)
   const [showPwd, setShowPwd] = useState(true);
   const [formData, setFormData] = useState({
     login: '',
@@ -41,6 +48,7 @@ export default function RegistrationScreen() {
     password: '',
   });
   const [errors, setErrors] = useState({});
+ const dispatch = useDispatch()
 
   const handleInputFocus = (name) => {
     setActiveInputName(name);
@@ -57,20 +65,43 @@ export default function RegistrationScreen() {
     });
   };
 
-  const handleRegistration = async () => {
-    try {
-      await validationSchema.validate(formData, { abortEarly: false });
-      console.log(formData);
-		setErrors({});
-		navigation.navigate('PostScren')
-    } catch (validationErrors) {
-      const newErrors = {};
-      validationErrors.inner.forEach((error) => {
-        newErrors[error.path] = error.message;
-      });
-      setErrors(newErrors);
+const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setAvatarPhoto(result.uri);
     }
   };
+
+  const handleRegistration = async () => {
+  try {
+    await validationSchema.validate(formData, { abortEarly: false });
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.password
+    );
+    const userId = userCredential.user.uid;
+
+ await setDoc(doc(db, 'users', userId), { name: formData.login, uriAvatar: avatarPhoto, uid: userId, email:formData.email });
+    setErrors({});
+    navigation.navigate('PostScren');
+  } catch (validationErrors) {
+    const newErrors = {};
+    validationErrors.inner.forEach((error) => {
+      newErrors[error.path] = error.message;
+    });
+    setErrors(newErrors);
+  }
+};
+
+
+
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -80,11 +111,18 @@ export default function RegistrationScreen() {
           behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
         >
           <View style={styles.bgElements}>
-            <View style={styles.avatarHolder}>
-              <TouchableOpacity style={styles.addAvatarBg}>
+            {avatarPhoto ? (<Image source={{ uri: avatarPhoto }} style={{ position: 'relative',
+    top: -60,
+    width: 120,
+    height: 120,
+    borderRadius: 16, }} />
+            ) : (
+              <View style={styles.avatarHolder}>
+              <TouchableOpacity style={styles.addAvatarBg} onPress={pickImage}>
                 <AntDesign name="pluscircleo" size={24} color="#ff6c00" />
               </TouchableOpacity>
-            </View>
+            </View>)}
+            
 
             <Text style={styles.title}>Реєстрація</Text>
 

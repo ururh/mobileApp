@@ -12,7 +12,6 @@ const Tabs = createBottomTabNavigator();
 
 export default function PostsScreen() {
   const navigation = useNavigation();
-
   const handleGoBack = () => {
     navigation.navigate('Home');
   };

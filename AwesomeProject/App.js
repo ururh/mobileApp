@@ -1,6 +1,5 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
 import * as  Font from 'expo-font';
 
@@ -14,6 +13,9 @@ import CreatePostsScreen from './secondaryScreens/CreatePostsScreen';
 import ProfileScreen from './secondaryScreens/ProfileScreen';
 import MapScreen from './secondaryScreens/MapScreen';
 import CommentsScreen from './secondaryScreens/CommentsScreen';
+import { Provider } from 'react-redux';
+import store  from './redux/store'
+
 
 
 
@@ -38,8 +40,9 @@ export default function App() {
   }, []);
 
   return (
-      <NavigationContainer>
-        <MainStack.Navigator initialRouteName='PostScren' screenOptions={{ headerShown: false }}>
+    <Provider store={store}>
+            <NavigationContainer>
+        <MainStack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
           <MainStack.Screen name="Login" component={LoginScreen} />
         <MainStack.Screen name="Registration" component={RegistrationScreen} />
         <MainStack.Screen name="PostScren" component={PostsScreen} />
@@ -48,7 +51,8 @@ export default function App() {
         <MainStack.Screen name="Map" component={MapScreen} />
         <MainStack.Screen name="Comments" component={CommentsScreen}/>
           </MainStack.Navigator>
-     </NavigationContainer>
+        </NavigationContainer>
+</Provider>
   );
 }
 
